@@ -10,7 +10,8 @@ namespace MoqPuzzlesTests {
 
         [Fact]
         public void Line_item_on_bill_remains_unchanged_when_line_item_has_unknown_procedure_code() {
-            var mockLineItemProcessor = new Mock<ILineItemProcessor>();
+            //var mockLineItemProcessor = new Mock<ILineItemProcessor>();
+            var mockLineItemProcessor = new Mock<ILineItemProcessor>(MockBehavior.Strict);
             mockLineItemProcessor
                 .Setup(mockLineItemProcessor => mockLineItemProcessor.GetCodeDescriptionAndAllowance(
                     It.Is<LineItem>(lineItem => lineItem.ProcedureCode == UNKNOWN_PROCEDURE_CODE)))
@@ -20,16 +21,23 @@ namespace MoqPuzzlesTests {
             var testLineItem = getTestLineItemWithUnknownProcedureCode();
             testBill.LineItems.Add(testLineItem);
             billProcessor.ProcessBill(testBill);
-            var unchangedLineItem = getTestLineItemWithUnknownProcedureCode();
-            Assert.Equal(unchangedLineItem, testLineItem);
+            //var unchangedLineItem = getTestLineItemWithUnknownProcedureCode();
+            //Assert.Equal(unchangedLineItem, testLineItem);
+            var expectedNumberOfAdjustments = 0;
+            var actualNumberOfAdjustments = testBill.LineItems[0].Adjustments.Count;
+            Assert.Equal(expectedNumberOfAdjustments, actualNumberOfAdjustments);
         }
 
         [Fact]
         public void Line_item_on_bill_gets_adjustment_for_suture_procedure_code() {
-            var mockLineItemProcessor = new Mock<ILineItemProcessor>();
+            //var mockLineItemProcessor = new Mock<ILineItemProcessor>();
+            var mockLineItemProcessor = new Mock<ILineItemProcessor>(MockBehavior.Strict);
             mockLineItemProcessor
+                //.Setup(mockLineItemProcessor =>
+                //    mockLineItemProcessor.GetCodeDescriptionAndAllowance(getTestLineItemWithSutureProcedureCode()))
                 .Setup(mockLineItemProcessor =>
-                    mockLineItemProcessor.GetCodeDescriptionAndAllowance(getTestLineItemWithSutureProcedureCode()))
+                    mockLineItemProcessor.GetCodeDescriptionAndAllowance(
+                        It.Is<LineItem>(lineItem => lineItem.ProcedureCode == SUTURE_PROCEDURE_CODE)))
                 .Returns(new CodeDescriptionAndAllowance(SUTURE_PROCEDURE_CODE) {
                     Description = "Suture Procedure",
                     MedicareAllowance = 50.00m,

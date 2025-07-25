@@ -16,8 +16,18 @@ namespace MoqPuzzlesTests {
                 UNKNOWN_PROCEDURE_CODE,
                 DEFAULT_LINE_ITEM_CHARGE,
                 JULY_01_2024_UTC);
-            var mockCodeInfoRepository = new Mock<ICodeInfoRepository>();
-            var mockMedicareRepository = new Mock<IMedicareRepository>();
+            //var mockCodeInfoRepository = new Mock<ICodeInfoRepository>();
+            var mockCodeInfoRepository = new Mock<ICodeInfoRepository>(MockBehavior.Strict);
+            mockCodeInfoRepository
+                .Setup(repo => repo.GetDescriptionOfCode(
+                    It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE)))
+                .Returns((string)null);
+            //var mockMedicareRepository = new Mock<IMedicareRepository>();
+            var mockMedicareRepository = new Mock<IMedicareRepository>(MockBehavior.Strict);
+            mockMedicareRepository
+                .Setup(repo => repo.GetMedicareAllowance(
+                    It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE), It.IsAny<DateTime>()))
+                .Returns((decimal?)null);
             var processor = new LineItemProcessor(mockCodeInfoRepository.Object, mockMedicareRepository.Object);
             CodeDescriptionAndAllowance codeDescriptionAndAllowance = processor.GetCodeDescriptionAndAllowance(
                 lineItemWithUnknownProcedureCode);
@@ -38,16 +48,20 @@ namespace MoqPuzzlesTests {
             var mockCodeInfoRepository = new Mock<ICodeInfoRepository>(MockBehavior.Strict);
             mockCodeInfoRepository
                 .Setup(mockRepo => mockRepo.GetDescriptionOfCode(
-                    It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE),
+                    //It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE),
+                    //It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE)))
                     It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE)))
-                .Returns((string procedureCode, string subCode) => null);
+                .Returns((string)null);
             var mockMedicareRepository = new Mock<IMedicareRepository>(MockBehavior.Strict);
             mockMedicareRepository
                 .Setup(mockRepo => mockRepo.GetMedicareAllowance(
+                    //It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE),
+                    //It.IsAny<DateTime>(),
+                    //It.IsAny<string[]>()))
                     It.Is<string>(procedureCode => procedureCode == UNKNOWN_PROCEDURE_CODE),
-                    It.IsAny<DateTime>(),
-                    It.IsAny<string[]>()))
-                .Returns((string procedureCode, DateTime dateOfService, string[] modifiers) => null);
+                    It.IsAny<DateTime>()))
+                //.Returns((string procedureCode, DateTime dateOfService, string[] modifiers) => null);
+                .Returns((decimal?)null);
             var processor = new LineItemProcessor(mockCodeInfoRepository.Object, mockMedicareRepository.Object);
             CodeDescriptionAndAllowance codeDescriptionAndAllowance = processor.GetCodeDescriptionAndAllowance(
                 lineItemWithUnknownProcedureCode);
